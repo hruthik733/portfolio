@@ -1,11 +1,32 @@
 import { useState, useEffect } from 'react'
-import './App.css'
+import './App1.css'
+
+import { projects } from "./data/projects";
+import ProjectCard from "./components/ProjectCard";
+import { certifications } from "./data/certifications";
+import CertificationCard from "./components/CertificationCard";
+import { skillCategories } from "./data/skills";
+import SkillCategory from "./components/SkillCategory";
+
 
 function App() {
   const [activeSection, setActiveSection] = useState('home')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [typingText, setTypingText] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [textIndex, setTextIndex] = useState(0)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  })
+
+  const texts = [
+    'Information Technology Student',
+    'Computer Science Enthusiast'
+  ]
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -14,6 +35,30 @@ function App() {
   const handleNavClick = (section) => {
     setActiveSection(section)
     setMobileMenuOpen(false)
+  }
+
+  const scrollToProjects = () => {
+    const projectsSection = document.getElementById('projects')
+    if (projectsSection) {
+      projectsSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const { name, email, message } = formData
+    const whatsappMessage = `Name: ${name}%0AEmail: ${email}%0AMessage: ${message}`
+    const whatsappUrl = `https://wa.me/917671978733?text=${whatsappMessage}`
+    window.open(whatsappUrl, '_blank')
+    setFormData({ name: '', email: '', message: '' })
   }
 
   useEffect(() => {
@@ -38,6 +83,32 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const currentText = texts[textIndex]
+    const speed = isDeleting ? 30 : 60
+
+    if (!isDeleting && typingText === currentText) {
+      setTimeout(() => setIsDeleting(true), 1000)
+      return
+    }
+
+    if (isDeleting && typingText === '') {
+      setIsDeleting(false)
+      setTextIndex((prev) => (prev + 1) % texts.length)
+      return
+    }
+
+    const timer = setTimeout(() => {
+      if (isDeleting) {
+        setTypingText(currentText.substring(0, typingText.length - 1))
+      } else {
+        setTypingText(currentText.substring(0, typingText.length + 1))
+      }
+    }, speed)
+
+    return () => clearTimeout(timer)
+  }, [typingText, isDeleting, textIndex, texts])
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -48,8 +119,13 @@ function App() {
   if (loading) {
     return (
       <div className="loader-container">
-        <div className="loader"></div>
-        <h2>Loading Portfolio...</h2>
+        <div className="loader-content">
+          <div className="loader-logo">HRUTHIK PAVARALA</div>
+          <div className="loader-subtitle">Information Technology Student</div>
+          <div className="loader-bar">
+            <div className="loader-progress"></div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -76,24 +152,24 @@ function App() {
       {/* Hero Section */}
       <section id="home" className="hero">
         <div className="hero-content">
-          <h1>Hi, I'm <span className="highlight">Hruthik Krishna Pavarala</span></h1>
-          <h2>Information Technology Student</h2>
+          <h1>Hi, I'm <span className="highlight">Hruthik Pavarala</span></h1>
+          <h2 className="typing-text">{typingText}<span className="cursor">|</span></h2>
           <p>Passionate about AI, Machine Learning, and Web Development</p>
           <div className="social-links">
             <a href="mailto:hruthik733@gmail.com" className="social-btn">
               <i className="fas fa-envelope"></i> Email
             </a>
-            <a href="https://www.linkedin.com/in/hruthik-pavarala-94595a25b" target="_blank" rel="noopener noreferrer" className="social-btn">
+            <a href="https://www.linkedin.com/in/hruthik-pavarala" target="_blank" rel="noopener noreferrer" className="social-btn">
               <i className="fab fa-linkedin"></i> LinkedIn
             </a>
             <a href="https://github.com/hruthik733" target="_blank" rel="noopener noreferrer" className="social-btn">
               <i className="fab fa-github"></i> GitHub
             </a>
-            <a href="tel:+917671978733 " className="social-btn">
+            <a href="tel:+917671978733" className="social-btn">
               <i className="fas fa-phone"></i> +91-7671978733
             </a>
           </div>
-          <button className="cta-button">View My Projects</button>
+          <button className="cta-button" onClick={scrollToProjects}>View My Projects</button>
         </div>
       </section>
 
@@ -114,7 +190,7 @@ function App() {
           <div className="experience-header">
             <h3>Web Developer Intern</h3>
             <p className="experience-company">Chitti Motors Private Limited, Vijayawada</p>
-            <p className="experience-date">February, 2025 - Present</p>
+            <p className="experience-date">February, 2025 - March, 2025</p>
           </div>
           <p>Chitti Motors is an electric cycle startup focused on innovative, eco-friendly mobility solutions.</p>
           <ul className="experience-details">
@@ -158,106 +234,97 @@ function App() {
 
       {/* Skills Section */}
       <section id="skills" className="skills">
+
         <h2>Skills</h2>
+
         <div className="skills-container">
-          <div className="skill-category">
-            <h3>Programming Languages & Databases</h3>
-            <div className="skills-grid">
-              <div className="skill-card">Python</div>
-              <div className="skill-card">Java</div>
-              <div className="skill-card">C++</div>
-              <div className="skill-card">MySQL</div>
-              <div className="skill-card">OOP</div>
-              <div className="skill-card">DSA</div>
-            </div>
-          </div>
-          <div className="skill-category">
-            <h3>Machine Learning & AI</h3>
-            <div className="skills-grid">
-              <div className="skill-card">TensorFlow</div>
-              <div className="skill-card">PyTorch</div>
-              <div className="skill-card">OpenCV</div>
-              <div className="skill-card">Chatbots</div>
-              <div className="skill-card">Deep Learning</div>
-              <div className="skill-card">Ollama Models</div>
-            </div>
-          </div>
+
+          {skillCategories.map((category, index) => (
+            <SkillCategory
+              key={index}
+              category={category}
+            />
+          ))}
+
         </div>
+
       </section>
 
       {/* Projects Section */}
       <section id="projects" className="projects">
         <h2>Projects</h2>
+
         <div className="projects-grid">
-          <div className="project-card">
-            <h3>Pneumonia Detection from Chest X-rays</h3>
-            <p className="project-date">August, 2024 - December, 2024</p>
-            <p>Developed an ensemble model combining VGG19, EfficientNetB0, and DenseNet121 for pneumonia detection.</p>
-            <ul className="project-details">
-              <li>Developed an ensemble model achieving 93% accuracy for pneumonia detection</li>
-              <li>Leveraged Grad-CAM to generate heatmaps for precise localization of affected lung regions</li>
-              <li>Optimized performance using the Adam optimizer and fine-tuned model weights</li>
-            </ul>
-            <a href="https://github.com/hruthik733/Pneumonia_detection_using_feature_level_ensemble" target="_blank" rel="noopener noreferrer" className="project-link">GitHub Repository</a>
-          </div>
-          <div className="project-card">
-            <h3>MoviesNow – Personal Movie Collection Platform</h3>
-            <p className="project-date">December, 2024 - January, 2025</p>
-            <p>MoviesNow is a personal movie review web application that allows users to log and review movies.</p>
-            <ul className="project-details">
-              <li>Integrated Google Firebase authentication and Firestore as a real-time database</li>
-              <li>Developed a feature-rich admin panel for managing movie collections</li>
-              <li>Integrated the OMDb API to fetch detailed movie information</li>
-            </ul>
-            <a href="https://movieshub-4u.web.app/" target="_blank" rel="noopener noreferrer" className="project-link">Live Demo</a>
-          </div>
+          {projects.map((project, index) => (
+            <ProjectCard
+              key={index}
+              project={project}
+            />
+          ))}
         </div>
       </section>
 
       {/* Certifications Section */}
       <section id="certifications" className="certifications">
+
         <h2>Certifications</h2>
+
         <div className="certifications-grid">
-          <div className="certification-card">
-            <h3>The Joy of Computing using Python</h3>
-            <p>NPTEL</p>
-          </div>
-          <div className="certification-card">
-            <h3>PCAP: Programming Essentials in Python</h3>
-            <p>OPENEDG PYTHON INSTITUTE</p>
-          </div>
-          <div className="certification-card">
-            <h3>CPA: Programming Essentials in C++</h3>
-            <p>C++ INSTITUTE</p>
-          </div>
-          <div className="certification-card">
-            <h3>Introduction to Generative AI</h3>
-            <p>GOOGLE CLOUD</p>
-          </div>
+
+          {certifications.map((certification, index) => (
+            <CertificationCard
+              key={index}
+              certification={certification}
+            />
+          ))}
+
         </div>
+
       </section>
 
       {/* Contact Section */}
       <section id="contact" className="contact">
         <h2>Get In Touch</h2>
         <div className="contact-content">
-          <form className="contact-form">
-            <input type="text" placeholder="Name" />
-            <input type="email" placeholder="Email" />
-            <textarea placeholder="Message"></textarea>
+          <form className="contact-form" onSubmit={handleSubmit}>
+            <input 
+              type="text" 
+              name="name"
+              placeholder="Name" 
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+            />
+            <input 
+              type="email" 
+              name="email"
+              placeholder="Email" 
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+            />
+            <textarea 
+              name="message"
+              placeholder="Message"
+              value={formData.message}
+              onChange={handleInputChange}
+              required
+            ></textarea>
             <button type="submit" className="submit-button">Send Message</button>
           </form>
           <div className="contact-info">
             <p><i className="fas fa-envelope"></i> hruthik733@gmail.com</p>
             <p><i className="fas fa-map-marker-alt"></i> Vijayawada</p>
-            <p><i className="fab fa-linkedin"></i> <a href="https://www.linkedin.com/in/hruthik-pavarala-94595a25b" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>
+            <p><i className="fab fa-linkedin"></i> <a href="https://www.linkedin.com/in/hruthik-pavarala" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>
+            <p><i className="fab fa-github"></i> <a href="https://github.com/hruthik733" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+            <p><i className="fas fa-phone"></i> <a href="tel:+917671978733">+91-7671978733</a></p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer>
-        <p>&copy; 2024 Hruthik Pavarala. All rights reserved.</p>
+        <p>&copy; 2025 Hruthik Pavarala. All rights reserved.</p>
       </footer>
 
       {/* Scroll to Top Button */}
